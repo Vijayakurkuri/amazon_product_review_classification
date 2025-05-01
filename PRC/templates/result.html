@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Result</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --positive-color: #12d32f;
+            --negative-color: #ff4444;
+            --neutral-color: #ffbb33;
+            --error-color: #ff6b6b;
+            --dark-color: #333;
+            --light-color: #f8f9fa;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            color: var(--dark-color);
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            width: 90%;
+            max-width: 650px;
+            border: 3px solid var(--dark-color);
+        }
+        
+        h1 {
+            margin-bottom: 1.5rem;
+            color: var(--dark-color);
+            font-weight: 600;
+            font-size: 2rem;
+        }
+        
+        .review-text {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+            line-height: 1.6;
+            border-left: 4px solid #007bff;
+        }
+        
+        .sentiment-result {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            border-radius: 10px;
+        }
+        
+        .positive {
+            color: var(--positive-color);
+            background-color: rgba(18, 211, 47, 0.1);
+        }
+        
+        .negative {
+            color: var(--negative-color);
+            background-color: rgba(255, 68, 68, 0.1);
+        }
+        
+        .neutral {
+            color: var(--neutral-color);
+            background-color: rgba(255, 187, 51, 0.1);
+        }
+        
+        .error-message {
+            color: var(--error-color);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background-color: rgba(255, 107, 107, 0.1);
+            border-radius: 10px;
+        }
+        
+        .confidence {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: #e9ecef;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            background-color: var(--positive-color);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            margin-top: 1.5rem;
+            box-shadow: 0 4px 10px rgba(18, 211, 47, 0.3);
+        }
+        
+        .btn:hover {
+            background-color: var(--dark-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .details {
+            margin: 1.5rem 0;
+            text-align: left;
+        }
+        
+        .details h3 {
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+                width: 95%;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .sentiment-result, .error-message {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Review Analysis Result</h1>
+        
+        {% if review %}
+        <div class="review-text">
+            "{{ review }}"
+        </div>
+        {% endif %}
+        
+        {% if error %}
+        <div class="error-message">
+            {{ error }}
+        </div>
+        {% elif result %}
+        <div class="sentiment-result {{ result.lower() }}">
+            Sentiment: {{ result }}
+            {% if probabilities %}
+                <div class="confidence">
+                    Confidence: {{ "%.0f"|format(probabilities[result] * 100) }}%
+                </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="sentiment-result">
+            No sentiment result available
+        </div>
+        {% endif %}
+        
+        {% if probabilities and not error %}
+        <div class="details">
+            <h3>Detailed Analysis:</h3>
+            <ul style="list-style-type: none; padding: 0;">
+                {% for sentiment, prob in probabilities.items() %}
+                <li style="margin-bottom: 0.5rem; display: flex; justify-content: space-between; max-width: 300px; margin: 0 auto 0.5rem;">
+                    <span>{{ sentiment }}:</span>
+                    <span>{{ "%.0f"|format(prob * 100) }}%</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        
+        <a href="{{ url_for('home') }}" class="btn">Analyze Another Review</a>
+    </div>
+</body>
+</html>
